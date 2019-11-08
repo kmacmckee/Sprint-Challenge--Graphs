@@ -19,9 +19,49 @@ world.loadGraph(roomGraph)
 world.printRooms()
 player = Player("Name", world.startingRoom)
 
+traversalPath = []
 
-# FILL THIS IN
-traversalPath = ['n', 's']
+direction_opposites = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
+back_track = []
+my_visited_rooms = {}
+
+
+my_visited_rooms[player.currentRoom.id] = player.currentRoom.getExits()
+
+while len(my_visited_rooms) < len(roomGraph):
+    if player.currentRoom.id not in my_visited_rooms:
+        #New room, add it
+        my_visited_rooms[player.currentRoom.id] = player.currentRoom.getExits()
+
+        last_direction = back_track[-1]
+
+        my_visited_rooms[player.currentRoom.id].remove(last_direction)
+    
+    while len(my_visited_rooms[player.currentRoom.id]) < 1:
+        #No where to go, go back
+        back = back_track.pop()
+        #Get direction from back_track array
+        traversalPath.append(back)
+        player.travel(back)
+
+    #Get the next exit direction
+    next_direction = my_visited_rooms[player.currentRoom.id].pop(0)
+
+    #Track how to get back using back_track array
+    back_track.append(direction_opposites[next_direction])
+
+    #Move to next room
+    traversalPath.append(next_direction)
+    player.travel(next_direction)
+
+
+    if len(roomGraph) - len(my_visited_rooms) == 1:
+        my_visited_rooms[player.currentRoom.id] = player.currentRoom.getExits()
+
+
+
+
+
 
 
 # TRAVERSAL TEST
@@ -40,9 +80,14 @@ else:
 
 
 
-#######
-# UNCOMMENT TO WALK AROUND
-#######
+
+
+
+
+
+######
+#UNCOMMENT TO WALK AROUND
+######
 # player.currentRoom.printRoomDescription(player)
 # while True:
 #     cmds = input("-> ").lower().split(" ")
